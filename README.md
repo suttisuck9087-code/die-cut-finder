@@ -22,4 +22,4 @@
 - [ ] Multi-admin
 
 ## ผู้พัฒนา
-- รุ่นที่ 1: suttisuck9087-code (2569)
+- รุ่นที่ 1: suttisak9087-code (2569)
