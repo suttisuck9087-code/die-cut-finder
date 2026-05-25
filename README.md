@@ -23,3 +23,6 @@
 
 ## ผู้พัฒนา
 - รุ่นที่ 1: suttisak9087-code (2569)
+## รหัส Email  
+email: diecutystem49@gmail.com
+รหัส : epediecut4567
