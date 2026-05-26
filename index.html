@@ -689,7 +689,7 @@ body{font-family:'Sarabun',sans-serif;background:var(--grey-100);color:var(--tex
 
       <div class="sb-pane" id="pane-report">
         <div class="sb-pane-title"><button type="button" class="sb-pane-back" onclick="closePane()">‹</button><span class="sb-pane-heading">แจ้งปัญหา Die cut</span></div>
-        <div class="auto-email-banner">
+        <div class="auto-email-banner"> 
           <span class="aeb-ico">🤖</span>
           <div class="aeb-content">
             <div class="aeb-title">ส่งอีเมลอัตโนมัติ — ไม่ต้องตั้งค่า</div>
@@ -1125,7 +1125,18 @@ var K_BOSS_EMAIL="dce_boss_email";
 
 function loadObj(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):{}}catch(e){return{}}}
 function loadArr(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):[]}catch(e){return[]}}
-function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function save(k, v) {
+  // บันทึก localStorage ปกติ
+  try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {}
+
+  // ถ้ารันบน GAS → sync ไปที่ server ด้วย
+  if (!IS_GAS) return;
+  if (k === K_ST)     google.script.run.saveStats(v);
+  if (k === K_NOTES)  google.script.run.saveNotes(v);
+  if (k === K_LOGS)   google.script.run.saveLogs(v);
+  if (k === K_CUSTOM) google.script.run.saveCustomDies(v);
+  if (k === K_BOSS_EMAIL) google.script.run.saveBossEmail(v);
+}
 
 var NOTES=loadArr(K_NOTES);
 var LOGS=loadArr(K_LOGS);
@@ -1596,6 +1607,38 @@ setTimeout(function(){
 /* ══════════════════════════════════════════════════════════════════
    INIT
    ══════════════════════════════════════════════════════════════════ */
+   function loadAllDataFromServer() {
+  google.script.run
+    .withSuccessHandler(function(result) {
+      if (!result || !result.ok) return;
+      if (result.stats) {
+        STATS = result.stats;
+        DATA.forEach(function(d) {
+          if (STATS[d.id]) d.status = STATS[d.id].status;
+        });
+      }
+      if (result.notes) NOTES = result.notes;
+      if (result.logs) LOGS = result.logs;
+      if (result.custom && result.custom.length) {
+        result.custom.forEach(function(d) {
+          if (!DATA.find(function(x){ return x.id === d.id; }))
+            DATA.push(d);
+        });
+        CUSTOM_DIES = result.custom;
+      }
+      if (result.bossEmail) {
+        BOSS_EMAIL = result.bossEmail;
+        updateEmailDisplays();
+      }
+      render();
+      toast('🔄 โหลดข้อมูลล่าสุดแล้ว', 2000);
+    })
+    .withFailureHandler(function(e) {
+      console.error('loadAllData error:', e);
+    })
+    .loadAllData();
+}
+
 var _clearLogPending=null;
 function confirmClearLog(type){
   if(!isAdmin()){toast("กรุณาเข้าสู่ระบบผู้ดูแล");return;}
@@ -1909,6 +1952,13 @@ document.getElementById("renameInp").onkeydown=function(e){
 
   /* ══ โหลดรูปทั้งหมดจาก Google Drive ตอน startup ══ */
   preloadAllImages();
+if (IS_GAS) {
+  loadAllDataFromServer();
+  // refresh ข้อมูลทุก 30 วินาที
+  setInterval(function() {
+    loadAllDataFromServer();
+  }, 30000);
+}
 }
 
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);
