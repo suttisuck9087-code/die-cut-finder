@@ -173,3 +173,46 @@ function sendEmailWithImage(params) {
     return { ok: false, error: e.toString() };
   }
 }
+function loadAllData() {
+  var props = PropertiesService.getScriptProperties();
+  return {
+    ok: true,
+    stats:     JSON.parse(props.getProperty('STATS')  || '{}'),
+    notes:     JSON.parse(props.getProperty('NOTES')  || '[]'),
+    logs:      JSON.parse(props.getProperty('LOGS')   || '[]'),
+    custom:    JSON.parse(props.getProperty('CUSTOM') || '[]'),
+    bossEmail: props.getProperty('BOSS_EMAIL') || 'diecutsystem49@gmail.com'
+  };
+}
+
+function saveStats(v) {
+  PropertiesService.getScriptProperties()
+    .setProperty('STATS', JSON.stringify(v));
+  return { ok: true };
+}
+
+function saveNotes(v) {
+  if (v.length > 500) v = v.slice(-500);
+  PropertiesService.getScriptProperties()
+    .setProperty('NOTES', JSON.stringify(v));
+  return { ok: true };
+}
+
+function saveLogs(v) {
+  if (v.length > 500) v = v.slice(0, 500);
+  PropertiesService.getScriptProperties()
+    .setProperty('LOGS', JSON.stringify(v));
+  return { ok: true };
+}
+
+function saveCustomDies(v) {
+  PropertiesService.getScriptProperties()
+    .setProperty('CUSTOM', JSON.stringify(v));
+  return { ok: true };
+}
+
+function saveBossEmail(v) {
+  PropertiesService.getScriptProperties()
+    .setProperty('BOSS_EMAIL', v);
+  return { ok: true };
+}
