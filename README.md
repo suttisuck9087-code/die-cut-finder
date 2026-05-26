@@ -22,7 +22,7 @@
 - [ ] Multi-admin
 
 ## ผู้พัฒนา
-- รุ่นที่ 1: suttisak9087-code (2569)
+- รุ่นที่ 1: suttisak9087-code (2569) ช่องทางติดต่อโดยตรง LINE ID:bakhlun47
 ## รหัส Email  
 email: diecutystem49@gmail.com
 รหัส : epediecut4567
